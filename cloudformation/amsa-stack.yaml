@@ -39,8 +39,8 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
-      KeyName: !Ref KeyName                    # Matches deploy.yml KeyName
-      ImageId: ami-0a716d3f3b16d290c          # Ubuntu 22.04 LTS in eu-north-1
+      KeyName: !Ref KeyName                  # Matches deploy.yml KeyName=${{ secrets.EC2_KEY_NAME }}
+      ImageId: ami-0a716d3f3b16d290c        # Ubuntu 22.04 LTS in eu-north-1
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
       UserData:
@@ -49,27 +49,53 @@ Resources:
           set -e
 
           # Update system
-          sudo apt update && sudo apt upgrade -y
+          apt update && apt upgrade -y
 
-          # Install basic dependencies
-          sudo apt install -y git curl nginx unzip
+          # Install dependencies
+          apt install -y git nginx curl unzip
+          curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
+          apt-get install -y nodejs
+          npm install -g pm2 serve
 
-          # Install Node.js 18 and PM2
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt-get install -y nodejs
-          sudo npm install -g pm2 serve
+          # Prepare directories
+          mkdir -p /var/www/frontend-amsa-ajinkya
+          mkdir -p /home/ubuntu/backend-amsa-ajinkya
 
-          # Create directories for frontend and backend
-          sudo mkdir -p /var/www/frontend-amsa-ajinkya
-          sudo mkdir -p /home/ubuntu/frontend-amsa-ajinkya
-          sudo mkdir -p /home/ubuntu/backend-amsa-ajinkya
-          sudo chown -R ubuntu:ubuntu /home/ubuntu
+          # Configure Nginx (frontend + backend proxy)
+          cat <<EOF > /etc/nginx/sites-available/amsa
+          server {
+              listen 80;
+              server_name _;
+
+              root /var/www/frontend-amsa-ajinkya;
+              index index.html;
+
+              location / {
+                  try_files \$uri /index.html;
+              }
+
+              location /api {
+                  proxy_pass http://localhost:3001;
+                  proxy_http_version 1.1;
+                  proxy_set_header Upgrade \$http_upgrade;
+                  proxy_set_header Connection 'upgrade';
+                  proxy_set_header Host \$host;
+                  proxy_cache_bypass \$http_upgrade;
+              }
+          }
+          EOF
+
+          ln -sf /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/amsa
+          rm -f /etc/nginx/sites-enabled/default
+          nginx -t
+          systemctl reload nginx
+          systemctl enable nginx
+          systemctl start nginx
 
 Outputs:
   PublicIP:
     Description: Public IP of the EC2 instance
     Value: !GetAtt AmsaEC2Instance.PublicIp
-
   PublicDNS:
     Description: Public DNS of the EC2 instance
     Value: !GetAtt AmsaEC2Instance.PublicDnsName
