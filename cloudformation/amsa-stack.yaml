@@ -39,8 +39,8 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
-      KeyName: !Ref KeyName
-      ImageId: ami-0a716d3f3b16d290c  # Ubuntu 22.04 LTS in eu-north-1
+      KeyName: !Ref KeyName                    # Must match deploy.yml secret
+      ImageId: ami-0a716d3f3b16d290c          # Ubuntu 22.04 LTS in eu-north-1
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
       UserData:
@@ -57,13 +57,13 @@ Resources:
           sudo apt-get install -y nodejs
           sudo npm install -g pm2 serve
 
-          # Create frontend + backend directories
+          # Create directories
           sudo mkdir -p /var/www/frontend-amsa-ajinkya
           sudo mkdir -p /home/ubuntu/frontend-amsa-ajinkya
           sudo mkdir -p /home/ubuntu/backend-amsa-ajinkya
           sudo chown -R ubuntu:ubuntu /home/ubuntu
 
-          # Configure Nginx (frontend + backend proxy)
+          # Configure Nginx
           cat <<EOF | sudo tee /etc/nginx/sites-available/amsa
           server {
               listen 80;
@@ -101,4 +101,3 @@ Outputs:
   PublicDNS:
     Description: Public DNS of the EC2 instance
     Value: !GetAtt AmsaEC2Instance.PublicDnsName
- 
