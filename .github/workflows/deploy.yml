@@ -42,7 +42,7 @@ jobs:
     - name: Build Backend
       working-directory: backend
       run: npm install
-
+   
     # 6️⃣ Get EC2 Instance IP from Tag Name
     - name: Get EC2 Public IP
       id: get_ip
