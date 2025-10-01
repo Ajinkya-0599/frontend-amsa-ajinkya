@@ -39,8 +39,8 @@ Resources:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
-      KeyName: !Ref KeyName                  # Matches deploy.yml KeyName=${{ secrets.EC2_KEY_NAME }}
-      ImageId: ami-0a716d3f3b16d290c        # Ubuntu 22.04 LTS in eu-north-1
+      KeyName: !Ref KeyName
+      ImageId: ami-0a716d3f3b16d290c  # Ubuntu 22.04 LTS in eu-north-1
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
       UserData:
@@ -49,20 +49,22 @@ Resources:
           set -e
 
           # Update system
-          apt update && apt upgrade -y
+          sudo apt update && sudo apt upgrade -y
 
           # Install dependencies
-          apt install -y git nginx curl unzip
-          curl -fsSL https://deb.nodesource.com/setup_18.x | bash -
-          apt-get install -y nodejs
-          npm install -g pm2 serve
+          sudo apt install -y git nginx curl unzip
+          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
+          sudo apt-get install -y nodejs
+          sudo npm install -g pm2 serve
 
-          # Prepare directories
-          mkdir -p /var/www/frontend-amsa-ajinkya
-          mkdir -p /home/ubuntu/backend-amsa-ajinkya
+          # Create frontend + backend directories
+          sudo mkdir -p /var/www/frontend-amsa-ajinkya
+          sudo mkdir -p /home/ubuntu/frontend-amsa-ajinkya
+          sudo mkdir -p /home/ubuntu/backend-amsa-ajinkya
+          sudo chown -R ubuntu:ubuntu /home/ubuntu
 
           # Configure Nginx (frontend + backend proxy)
-          cat <<EOF > /etc/nginx/sites-available/amsa
+          cat <<EOF | sudo tee /etc/nginx/sites-available/amsa
           server {
               listen 80;
               server_name _;
@@ -85,12 +87,12 @@ Resources:
           }
           EOF
 
-          ln -sf /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/amsa
-          rm -f /etc/nginx/sites-enabled/default
-          nginx -t
-          systemctl reload nginx
-          systemctl enable nginx
-          systemctl start nginx
+          sudo ln -sf /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/amsa
+          sudo rm -f /etc/nginx/sites-enabled/default
+          sudo nginx -t || true
+          sudo systemctl reload nginx
+          sudo systemctl enable nginx
+          sudo systemctl start nginx
 
 Outputs:
   PublicIP:
