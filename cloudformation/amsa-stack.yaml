@@ -101,3 +101,4 @@ Outputs:
   PublicDNS:
     Description: Public DNS of the EC2 instance
     Value: !GetAtt AmsaEC2Instance.PublicDnsName
+ 
