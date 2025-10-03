@@ -89,7 +89,7 @@ jobs:
           sudo mkdir -p /var/www/frontend-amsa-ajinkya
           sudo cp -r out/* /var/www/frontend-amsa-ajinkya/
 
-          # --- Backend setup (Node.js API runs on port 3001 via PM2) ---
+          # --- Backend setup (Node.js API runs on port 3001 via PM2) --- 
           cd /home/ubuntu/backend-amsa-ajinkya
           npm install
           pm2 restart amsa-backend || pm2 start server.js --name amsa-backend --watch   

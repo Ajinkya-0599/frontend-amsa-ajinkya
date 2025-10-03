@@ -172,7 +172,7 @@ Resources:
       Threshold: 75
       ComparisonOperator: GreaterThanThreshold
       AlarmActions:
-        - !Ref AmsaAlarmTopic
+        - !Ref AmsaAlarmTopic 
       Dimensions:
         - Name: InstanceId
           Value: !Ref AmsaEC2Instance
