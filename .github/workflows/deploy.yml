@@ -92,7 +92,7 @@ jobs:
           # --- Backend setup (Node.js API runs on port 3001 via PM2) ---
           cd /home/ubuntu/backend-amsa-ajinkya
           npm install
-          pm2 restart amsa-backend || pm2 start server.js --name amsa-backend --watch
+          pm2 restart amsa-backend || pm2 start server.js --name amsa-backend --watch   
 
           # --- Reload services ---
           sudo nginx -t
