@@ -30,20 +30,7 @@ jobs:
       with:
         node-version: '18'
 
-    # 4️⃣ Build Frontend (no sudo needed on GitHub runner)
-    - name: Build Frontend
-      working-directory: frontend
-      run: |
-        npm install
-        npm run build
-        npm run export || true   # static export if available
-
-    # 5️⃣ Prepare Backend
-    - name: Build Backend
-      working-directory: backend
-      run: npm install
-   
-    # 6️⃣ Get EC2 Instance IP from Tag Name
+    # 4️⃣ Get EC2 Instance IP and set ENV
     - name: Get EC2 Public IP
       id: get_ip
       run: |
@@ -57,7 +44,22 @@ jobs:
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ secrets.AWS_REGION }} 
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+
+    # 5️⃣ Build Frontend (injects NEXT_PUBLIC_API_URL)
+    - name: Build Frontend
+      working-directory: frontend
+      run: |
+        echo "NEXT_PUBLIC_API_URL=${{ env.NEXT_PUBLIC_API_URL }}" > .env.production
+        cat .env.production
+        npm install
+        npm run build
+        npm run export || true
+
+    # 6️⃣ Prepare Backend
+    - name: Build Backend
+      working-directory: backend
+      run: npm install
 
     # 7️⃣ Deploy Frontend & Backend to EC2
     - name: Deploy to EC2
