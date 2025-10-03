@@ -1,148 +1,44 @@
-# 🌟 AMSA Website  
+# AMSA Frontend Repository
 
-![Project Banner](https://via.placeholder.com/1200x300?text=AMSA+Website+Project)  
-
-**AMSA** is a full-stack web application designed to manage and showcase AMSA activities, events, and member engagement.  
-It uses a modern React frontend, a Node.js backend, automated CI/CD pipeline, and secure AWS-based deployment.  
+This repository contains the **frontend code** for the AMSA project. The project is built using **Next.js**, and the deployment is fully automated using **CI/CD pipelines** to an **AWS EC2 instance**.
 
 ---
 
-## 🚀 Features  
+## Project Overview
 
-- ⚡ **Fast Frontend**: React + Vite for optimized builds and performance  
-- 🔧 **Backend API**: Node.js + Express for business logic and APIs  
-- 🛠️ **CI/CD Pipeline**: Automated builds and deployments via GitHub Actions  
-- 🌍 **CloudFront CDN**: Global delivery of static frontend assets  
-- 📊 **Monitoring & Alerts**: Server health and error tracking via AWS CloudWatch  
-- ☁️ **AWS Hosting**: Frontend + Backend deployed on AWS EC2  
-- 🔐 **Secure by Default**: HTTPS + SSL certificates  
+- **Frontend Framework:** Next.js  
+- **Backend Framework:** Node.js (API runs on port 3001)  
+- **Server:** AWS EC2 (Ubuntu)  
+- **Process Manager:** PM2  
+- **Web Server:** Nginx (serves frontend static files)  
 
 ---
 
-## 🗂 Project Structure  
+## Deployment & Automation
 
-```
-amsa-website/
-├── CloudFormation/         # AWS infrastructure templates
-├── frontend/               # React + Vite frontend
-├── backend/                # Node.js + Express backend
-├── .github/workflows/      # CI/CD pipeline
-└── README.md               # Documentation
-```
+The project includes **two main YAML configuration files** for deployment and infrastructure:
 
----
+1. **`amsa-stack.yml`**
+   - Defines the infrastructure for the project.  
+   - Can include **CloudFormation or Terraform** configuration for provisioning EC2 instances, security groups, and networking.  
+   - Ensures repeatable and consistent environment setup.
 
-## 🛠️ Tech Stack  
-
-| Component   | Technology                     |
-|-------------|--------------------------------|
-| Frontend    | React, Vite                    |
-| Backend     | Node.js, Express               |
-| Hosting     | AWS EC2                        |
-| CDN         | AWS CloudFront                 |
-| CI/CD       | GitHub Actions                 |
-| Monitoring  | AWS CloudWatch / Dashboards    |
-| Security    | HTTPS / SSL Certificates       |
+2. **`deploy.yml`**
+   - GitHub Actions workflow for **CI/CD deployment**.  
+   - Automates:
+     - Checking out frontend and backend repositories.
+     - Installing dependencies and building the frontend.
+     - Exporting static frontend files.
+     - Installing backend dependencies and starting the backend with PM2.
+     - Copying frontend static files to EC2 Nginx folder.
+     - Restarting Nginx to apply changes.
+     - Updating EC2 instance dynamically using tags.
 
 ---
 
-## 🏗️ Architecture Overview  
+## How to Run Locally
 
-- **GitHub Actions** → Builds, tests, and deploys frontend + backend  
-- **EC2 Instances** → Hosts frontend and backend servers  
-- **CloudFront CDN** → Caches frontend for global performance  
-- **Monitoring** → Tracks uptime, CPU, memory, network, and errors  
-
----
-
-## 📦 Deployment Process  
-
-### 1️⃣ CloudFormation (IaC)  
-- Spins up EC2 instances for frontend & backend  
-- Configures networking, ports, and security groups  
-- Sets up CloudFront distribution  
-
-### 2️⃣ CI/CD (GitHub Actions)  
-- Triggered on `push` to `main`  
-- **Frontend:** Install → Test → Build → Deploy to EC2  
-- **Backend:** Install → Test → Deploy with `pm2`  
-
-### 3️⃣ Monitoring & Alerts  
-- CloudWatch dashboards for performance  
-- Alerts via Email / Slack  
-
-### 4️⃣ Manual Deployment (first time setup)  
-
-**Frontend**
+1. Clone the repository:
 ```bash
-cd frontend
-npm install
-npm run build
-
-# Copy build to EC2
-scp -r dist/ ubuntu@<FRONTEND_EC2_IP>:/var/www/html
-```
-
-**Backend**
-```bash
-cd backend
-npm install
-
-# Copy backend to EC2
-scp -r ./ ubuntu@<BACKEND_EC2_IP>:/home/ubuntu/backend
-
-# SSH into EC2 and start
-ssh ubuntu@<BACKEND_EC2_IP>
-cd backend
-pm2 start index.js --name backend
-```
-
-**CloudFront + SSL**
-- Configure CloudFront to serve `/dist`  
-- Attach SSL certificate for HTTPS  
-
----
-
-## 🌐 Demo URLs  
-
-- Frontend (HTTPS): `https://<FRONTEND_EC2_IP>`  
-- Backend API (HTTPS): `https://<BACKEND_EC2_IP>`  
-*(Replace with EC2 IPs or CloudFront URLs)*  
-
----
-
-## 💻 Quick Setup Guide  
-
-```bash
-# Clone repo
-git clone https://github.com/<your-username>/amsa-website.git
-cd amsa-website
-
-# Frontend
-cd frontend
-npm install
-npm run dev      # Development
-npm run build    # Production
-
-# Backend
-cd ../backend
-npm install
-npm start        # Development
-pm2 start index.js --name backend  # Production
-```
-
----
-
-## 🏷️ Badges  
-
-![React](https://img.shields.io/badge/Frontend-React-blue)  
-![Vite](https://img.shields.io/badge/Build-Vite-yellow)  
-![Node.js](https://img.shields.io/badge/Backend-Node.js-green)  
-![AWS](https://img.shields.io/badge/Cloud-AWS-orange)  
-![GitHub Actions](https://img.shields.io/badge/CI/CD-GitHub_Actions-black)  
-
----
-
-## 📄 License  
-
-This project is licensed under the **MIT License** — see the [LICENSE](LICENSE) file.  
+git clone https://github.com/Ajinkya-0599/frontend-amsa-ajinkya.git
+cd frontend-amsa-ajinkya
