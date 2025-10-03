@@ -34,9 +34,9 @@ jobs:
     - name: Build Frontend
       working-directory: frontend
       run: |
-        sudo npm install
-        sudo npm run build
-        sudo npm run export || true   # static export if available
+        npm install
+        npm run build
+        npm run export || true   # static export if available
 
     # 5️⃣ Prepare Backend
     - name: Build Backend
@@ -60,7 +60,7 @@ jobs:
 
     # 7️⃣ Deploy Frontend & Backend to EC2
     - name: Deploy to EC2
-      uses: appleboy/ssh-action@v1.0.0 
+      uses: appleboy/ssh-action@v1.0.0
       with:
         host: ${{ env.INSTANCE_IP }}
         username: ubuntu
@@ -81,17 +81,17 @@ jobs:
 
           # --- Frontend setup (Next.js static build for Nginx) ---
           cd /home/ubuntu/frontend-amsa-ajinkya
-          sudo npm install
-          sudo npm run build
-          sudo npm run export || true
+          npm install
+          npm run build
+          npm run export || true
           sudo rm -rf /var/www/frontend-amsa-ajinkya
           sudo mkdir -p /var/www/frontend-amsa-ajinkya
           sudo cp -r out/* /var/www/frontend-amsa-ajinkya/
 
           # --- Backend setup (Node.js API runs on port 3001 via PM2) ---
           cd /home/ubuntu/backend-amsa-ajinkya
-          sudo npm install
-          sudo pm2 restart amsa-backend || pm2 start server.js --name amsa-backend --watch
+          npm install
+          pm2 restart amsa-backend || pm2 start server.js --name amsa-backend --watch
 
           # --- Reload services ---
           sudo nginx -t
