@@ -1,44 +1,91 @@
-# AMSA Frontend Repository
+# 🌟 AMSA Website  
 
-This repository contains the **frontend code** for the AMSA project. The project is built using **Next.js**, and the deployment is fully automated using **CI/CD pipelines** to an **AWS EC2 instance**.
+![Project Banner](https://via.placeholder.com/1200x300?text=AMSA+Website+Project)  
 
----
-
-## Project Overview
-
-- **Frontend Framework:** Next.js  
-- **Backend Framework:** Node.js (API runs on port 3001)  
-- **Server:** AWS EC2 (Ubuntu)  
-- **Process Manager:** PM2  
-- **Web Server:** Nginx (serves frontend static files)  
+**AMSA** is a full-stack web application designed to manage and showcase AMSA activities, events, and member engagement.  
+It uses a modern Next.js frontend, a Node.js backend, automated CI/CD pipeline, and secure AWS-based deployment.  
 
 ---
 
-## Deployment & Automation
+## 🚀 Features  
 
-The project includes **two main YAML configuration files** for deployment and infrastructure:
-
-1. **`amsa-stack.yml`**
-   - Defines the infrastructure for the project.  
-   - Can include **CloudFormation or Terraform** configuration for provisioning EC2 instances, security groups, and networking.  
-   - Ensures repeatable and consistent environment setup.
-
-2. **`deploy.yml`**
-   - GitHub Actions workflow for **CI/CD deployment**.  
-   - Automates:
-     - Checking out frontend and backend repositories.
-     - Installing dependencies and building the frontend.
-     - Exporting static frontend files.
-     - Installing backend dependencies and starting the backend with PM2.
-     - Copying frontend static files to EC2 Nginx folder.
-     - Restarting Nginx to apply changes.
-     - Updating EC2 instance dynamically using tags.
+- ⚡ **Fast Frontend**: Next.js for optimized builds and performance  
+- 🔧 **Backend API**: Node.js + Express for business logic and APIs  
+- 🛠️ **CI/CD Pipeline**: Automated builds and deployments via GitHub Actions  
+- 🌍 **CloudFront CDN**: Global delivery of static frontend assets  
+- 📊 **Monitoring & Alerts**: Server health and error tracking via AWS CloudWatch  
+- ☁️ **AWS Hosting**: Frontend + Backend deployed on AWS EC2  
+- 🔐 **Secure by Default**: HTTPS + SSL certificates  
 
 ---
 
-## How to Run Locally
+## 🗂 Project Structure  
 
-1. Clone the repository:
+amsa-website/
+├── CloudFormation/ # AWS infrastructure templates
+├── frontend/ # Next.js frontend
+├── backend/ # Node.js backend
+├── .github/workflows/ # CI/CD pipeline
+└── README.md # Documentation
+
+
+---
+
+## 🛠️ Tech Stack  
+
+| Component   | Technology                     |
+|-------------|--------------------------------|
+| Frontend    | Next.js                         |
+| Backend     | Node.js, Express               |
+| Hosting     | AWS EC2                        |
+| CDN         | AWS CloudFront                 |
+| CI/CD       | GitHub Actions                 |
+| Monitoring  | AWS CloudWatch / Dashboards    |
+| Security    | HTTPS / SSL Certificates       |
+
+---
+
+## 🏗️ Architecture Overview  
+
+- **GitHub Actions** → Builds, tests, and deploys frontend + backend  
+- **EC2 Instances** → Hosts frontend and backend servers  
+- **CloudFront CDN** → Caches frontend for global performance  
+- **Monitoring** → Tracks uptime, CPU, memory, network, and errors  
+
+---
+
+## 📦 Deployment Process  
+
+### 1️⃣ CloudFormation (IaC)  
+- Spins up EC2 instances for frontend & backend  
+- Configures networking, ports, and security groups  
+- Sets up CloudFront distribution  
+
+### 2️⃣ CI/CD (GitHub Actions)  
+- Triggered on `push` to `main`  
+- **Frontend:** Install → Build → Export → Deploy to EC2  
+- **Backend:** Install → Deploy with `pm2`  
+
+### 3️⃣ Monitoring & Alerts  
+- CloudWatch dashboards for performance  
+- Alerts via Email / Slack  
+
+### 4️⃣ Manual Deployment (first time setup)  
+
+**Frontend**
 ```bash
-git clone https://github.com/Ajinkya-0599/frontend-amsa-ajinkya.git
-cd frontend-amsa-ajinkya
+cd frontend
+npm install
+npm run build
+npm run export
+
+# Copy build to EC2
+scp -r out/ ubuntu@<FRONTEND_EC2_IP>:/var/www/frontend-amsa-ajinkya
+
+🏷️ Badges
+
+
+
+
+
+
