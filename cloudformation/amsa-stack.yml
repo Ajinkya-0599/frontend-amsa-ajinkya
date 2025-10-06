@@ -12,7 +12,7 @@ Parameters:
       - t3.micro
       - t3.small
       - t3.medium
-    Description: EC2 instance type
+    Description: EC2 instance type 
 
 Resources:
   AmsaSecurityGroup: 
