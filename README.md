@@ -1,6 +1,17 @@
 # 🌟 AMSA Website  
 
-![Project Banner](https://via.placeholder.com/1200x300?text=AMSA+Website+Project)  
+![Project Banner]
+<p align="center">
+  <img src="https://img.shields.io/badge/Project-AMSA%20Website-blue?style=for-the-badge&logo=github">
+  <img src="https://img.shields.io/badge/Frontend-Next.js-black?style=for-the-badge&logo=next.js">
+  <img src="https://img.shields.io/badge/Backend-Node.js-green?style=for-the-badge&logo=node.js">
+  <img src="https://img.shields.io/badge/Database-MongoDB-darkgreen?style=for-the-badge&logo=mongodb">
+  <img src="https://img.shields.io/badge/Deployed%20On-AWS%20EC2-orange?style=for-the-badge&logo=amazonaws">
+  <img src="https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue?style=for-the-badge&logo=githubactions">
+  <img src="https://img.shields.io/badge/Process%20Manager-PM2-yellow?style=for-the-badge&logo=pm2">
+  <img src="https://img.shields.io/badge/Reverse%20Proxy-Nginx-green?style=for-the-badge&logo=nginx">
+</p>
+
 
 **AMSA** is a full-stack web application designed to manage and showcase AMSA activities, events, and member engagement.  
 It uses a modern Next.js frontend, a Node.js backend, automated CI/CD pipeline, and secure AWS-based deployment.  

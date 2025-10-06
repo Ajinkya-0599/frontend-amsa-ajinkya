@@ -138,12 +138,12 @@ Resources:
     Type: AWS::SNS::Subscription
     Properties:
       Protocol: email
-      Endpoint: "ajinkya2267@example.com"  # 🔄 Replace with your email 
+      Endpoint: "ajinkya.suryawanshi@alphaseam.com"  # 🔄 Replace with your email 
       TopicArn: !Ref AmsaAlarmTopic
 
   # --- CPU Alarm ---
   AmsaCPUAlarm:
-    Type: AWS::CloudWatch::Alarm
+    Type: AWS::CloudWatch::Alarm 
     Properties:
       AlarmName: "Amsa-CPU-High"
       MetricName: CPUUtilization
