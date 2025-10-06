@@ -4,6 +4,7 @@ Description: EC2 instance for Amsa Frontend and Backend with Monitoring
 Parameters:
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
+    Default: my-key-pair 
     Description: Name of an existing EC2 KeyPair for SSH access
   InstanceType:
     Type: String
