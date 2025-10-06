@@ -38,7 +38,7 @@ Resources:
     Properties:
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      ImageId:  ami-0234c59b00e36c6dd # Ubuntu 22.04
+      ImageId:  ami-0234c59b00e36c6dd # Ubuntu 22.04 
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
       Tags: 
@@ -189,6 +189,7 @@ Resources:
           Value: !Ref AmsaEC2Instance
         - Name: path
           Value: "/"
+
 # --- CloudWatch Dashboard ---
   AmsaDashboard:
     Type: AWS::CloudWatch::Dashboard
