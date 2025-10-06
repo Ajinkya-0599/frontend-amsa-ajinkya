@@ -15,7 +15,6 @@ Parameters:
     Description: EC2 instance type
 
 Resources:
-  # --- Security Group ---
   AmsaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -34,13 +33,12 @@ Resources:
           ToPort: 3001
           CidrIp: 0.0.0.0/0
 
-  # --- EC2 Instance ---
   AmsaEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      ImageId: ami-0a716d3f3b16d290c  # Ubuntu 22.04 (your AMI)
+      ImageId: ami-0a716d3f3b16d290c  # Ubuntu 22.04
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
       Tags:
@@ -49,30 +47,29 @@ Resources:
       UserData:
         Fn::Base64: !Sub |
           #!/bin/bash
-          set -e
-
           # Update system
-          sudo apt update -y && sudo apt upgrade -y
+          apt update && apt upgrade -y
+          apt install -y git nginx curl unzip
+          
+          # Install Node.js 20
+          curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+          apt install -y nodejs
+          
+          # Install global npm packages
+          npm install -g pm2 serve amazon-cloudwatch-agent
+          sudo npm install -g pm2
+          sudo npm install -g serve
 
-          # Install dependencies
-          sudo apt install -y git nginx curl unzip
-          curl -fsSL https://deb.nodesource.com/setup_18.x | sudo -E bash -
-          sudo apt install -y nodejs
-          sudo npm install -g pm2 serve amazon-cloudwatch-agent
+          # Prepare frontend directory
+          mkdir -p /var/www/amsa-fe
 
-          # Prepare frontend and backend directories
-          sudo mkdir -p /var/www/frontend-amsa-ajinkya
-          sudo mkdir -p /home/ubuntu/frontend-amsa-ajinkya
-          sudo mkdir -p /home/ubuntu/backend-amsa-ajinkya
-          sudo chown -R ubuntu:ubuntu /var/www/frontend-amsa-ajinkya /home/ubuntu
-
-          # Configure Nginx for frontend + backend proxy
-          cat <<EOF | sudo tee /etc/nginx/sites-available/amsa
+          # Configure Nginx
+          cat <<EOF > /etc/nginx/sites-available/amsa
           server {
               listen 80;
               server_name _;
 
-              root /var/www/frontend-amsa-ajinkya;
+              root /var/www/amsa-fe;
               index index.html;
 
               location / {
@@ -90,11 +87,9 @@ Resources:
           }
           EOF
 
-          sudo ln -sf /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/
-          sudo rm -f /etc/nginx/sites-enabled/default
-          sudo nginx -t || true
-          sudo systemctl restart nginx
-          sudo systemctl enable nginx
+          ln -s /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/
+          rm -f /etc/nginx/sites-enabled/default
+          nginx -t && systemctl restart nginx && systemctl enable nginx
 
           # --- Configure CloudWatch Agent ---
           cat <<CWCFG > /opt/aws/amazon-cloudwatch-agent/bin/config.json
@@ -123,11 +118,9 @@ Resources:
             }
           }
           CWCFG
-          /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
-            -a fetch-config -m ec2 \
-            -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+          /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
 
-  # --- SNS Topic for Monitoring ---
+  # --- SNS Topic for CloudWatch Alarms ---
   AmsaAlarmTopic:
     Type: AWS::SNS::Topic
     Properties:
@@ -138,12 +131,12 @@ Resources:
     Type: AWS::SNS::Subscription
     Properties:
       Protocol: email
-      Endpoint: "ajinkya.suryawanshi@alphaseam.com"  # 🔄 Replace with your email 
+      Endpoint: "ajinkya.suryawanshi@alphaseam.com"  # Replace with your email
       TopicArn: !Ref AmsaAlarmTopic
 
   # --- CPU Alarm ---
   AmsaCPUAlarm:
-    Type: AWS::CloudWatch::Alarm 
+    Type: AWS::CloudWatch::Alarm
     Properties:
       AlarmName: "Amsa-CPU-High"
       MetricName: CPUUtilization
@@ -172,7 +165,7 @@ Resources:
       Threshold: 75
       ComparisonOperator: GreaterThanThreshold
       AlarmActions:
-        - !Ref AmsaAlarmTopic 
+        - !Ref AmsaAlarmTopic
       Dimensions:
         - Name: InstanceId
           Value: !Ref AmsaEC2Instance
@@ -196,7 +189,6 @@ Resources:
           Value: !Ref AmsaEC2Instance
         - Name: path
           Value: "/"
-
 # --- CloudWatch Dashboard ---
   AmsaDashboard:
     Type: AWS::CloudWatch::Dashboard
@@ -270,7 +262,7 @@ Resources:
               }
             }
           ]
-        }          
+        }
 
 Outputs:
   PublicIP:
