@@ -7,7 +7,7 @@ Parameters:
     Description: Name of an existing EC2 KeyPair for SSH access
   InstanceType:
     Type: String
-    Default: t2.micro
+    Default: t3.micro
     AllowedValues:
       - t2.micro
       - t2.small
