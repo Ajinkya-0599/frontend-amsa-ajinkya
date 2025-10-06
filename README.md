@@ -1,4 +1,4 @@
-# 🌟 AMSA Website  
+# 🌟 AMSA Website   
 
 <p align="center">
   <img src="https://img.shields.io/badge/Project-AMSA%20Website-blue?style=for-the-badge&logo=github">
