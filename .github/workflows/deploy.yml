@@ -1,4 +1,4 @@
-name: CI/CD Deploy
+name: CI/CD Deploy with CloudFormation
 
 on:
   push:
@@ -30,20 +30,32 @@ jobs:
       with:
         node-version: '18'
 
-    # 4️⃣ Build Frontend (no sudo needed on GitHub runner)
+    # 4️⃣ Build Frontend
     - name: Build Frontend
       working-directory: frontend
       run: |
         npm install
         npm run build
-        
 
     # 5️⃣ Prepare Backend
     - name: Build Backend
       working-directory: backend
       run: npm install
-   
-    # 6️⃣ Get EC2 Instance IP from Tag Name
+
+    # 6️⃣ Deploy CloudFormation Stack
+    - name: Deploy CloudFormation Stack
+      uses: aws-actions/aws-cloudformation-github-deploy@v1
+      with:
+        name: amsa-stack
+        template: ./amsa-stack.yml
+        no-fail-on-empty-changeset: true
+        capabilities: CAPABILITY_NAMED_IAM
+      env:
+        AWS_REGION: ${{ secrets.AWS_REGION }}
+        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+
+    # 7️⃣ Get EC2 Instance IP from Tag Name
     - name: Get EC2 Public IP
       id: get_ip
       run: |
@@ -53,34 +65,29 @@ jobs:
           --output text \
           --region ${{ secrets.AWS_REGION }})
         echo "INSTANCE_IP=$INSTANCE_IP" >> $GITHUB_ENV
-        
       env:
         AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
         AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_REGION: ${{ secrets.AWS_REGION }} 
+        AWS_REGION: ${{ secrets.AWS_REGION }}
 
-    # 7️⃣ Deploy Frontend & Backend to EC2
+    # 8️⃣ Deploy Frontend & Backend to EC2
     - name: Deploy to EC2
       uses: appleboy/ssh-action@v1.0.0
       with:
-        host: ${{ secrets.INSTANCE_IP }} 
-        username: ubuntu 
+        host: ${{ env.INSTANCE_IP }}
+        username: ubuntu
         key: ${{ secrets.EC2_SSH_KEY }}
         port: 22
         script: |
-          # Clone repositories if not present
-          if [ ! -d "/home/ubuntu/frontend-amsa-ajinkya" ]; then
-            git clone https://github.com/Ajinkya-0599/frontend-amsa-ajinkya.git /home/ubuntu/frontend-amsa-ajinkya
-          fi
-          if [ ! -d "/home/ubuntu/backend-amsa-ajinkya" ]; then
-            git clone https://github.com/Ajinkya-0599/backend-amsa-ajinkya.git /home/ubuntu/backend-amsa-ajinkya
-          fi
+          # Clone repos if not present
+          [ ! -d "/home/ubuntu/frontend-amsa-ajinkya" ] && git clone https://github.com/Ajinkya-0599/frontend-amsa-ajinkya.git /home/ubuntu/frontend-amsa-ajinkya
+          [ ! -d "/home/ubuntu/backend-amsa-ajinkya" ] && git clone https://github.com/Ajinkya-0599/backend-amsa-ajinkya.git /home/ubuntu/backend-amsa-ajinkya
 
           # Pull latest changes
           cd /home/ubuntu/frontend-amsa-ajinkya && git pull origin main
           cd /home/ubuntu/backend-amsa-ajinkya && git pull origin main
 
-          # --- Frontend setup (Next.js static build for Nginx) ---
+          # Frontend setup
           cd /home/ubuntu/frontend-amsa-ajinkya
           npm install
           npm run build
@@ -89,12 +96,12 @@ jobs:
           sudo mkdir -p /var/www/frontend-amsa-ajinkya
           sudo cp -r out/* /var/www/frontend-amsa-ajinkya/
 
-          # --- Backend setup (Node.js API runs on port 3001 via PM2) --- 
+          # Backend setup
           cd /home/ubuntu/backend-amsa-ajinkya
           npm install
-          pm2 restart amsa-backend || pm2 start server.js --name amsa-backend --watch   
+          pm2 restart amsa-backend || pm2 start server.js --name amsa-backend --watch
 
-          # --- Reload services ---
+          # Reload services
           sudo nginx -t
           sudo systemctl restart nginx
           pm2 save
