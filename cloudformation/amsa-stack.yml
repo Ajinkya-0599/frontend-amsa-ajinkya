@@ -15,7 +15,7 @@ Parameters:
     Description: EC2 instance type
 
 Resources:
-  AmsaSecurityGroup:
+  AmsaSecurityGroup: 
     Type: AWS::EC2::SecurityGroup
     Properties:
       GroupDescription: Allow SSH, HTTP, and Backend API
