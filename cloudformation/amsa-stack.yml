@@ -41,7 +41,7 @@ Resources:
       ImageId:  ami-0234c59b00e36c6dd # Ubuntu 22.04
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
-      Tags:
+      Tags: 
         - Key: Name
           Value: "Amsa-EC2-Instance"
       UserData:
