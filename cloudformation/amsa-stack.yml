@@ -39,7 +39,7 @@ Resources:
     Properties:
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      ImageId:  ami-0234c59b00e36c6dd # Ubuntu 22.04 
+      ImageId:  ami-0a716d3f3b16d290c # Ubuntu 22.04 
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
       Tags: 
