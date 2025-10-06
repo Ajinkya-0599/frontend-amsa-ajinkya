@@ -1,15 +1,16 @@
 # 🌟 AMSA Website  
 
-![Project Banner]
 <p align="center">
   <img src="https://img.shields.io/badge/Project-AMSA%20Website-blue?style=for-the-badge&logo=github">
   <img src="https://img.shields.io/badge/Frontend-Next.js-black?style=for-the-badge&logo=next.js">
   <img src="https://img.shields.io/badge/Backend-Node.js-green?style=for-the-badge&logo=node.js">
-  <img src="https://img.shields.io/badge/Database-MongoDB-darkgreen?style=for-the-badge&logo=mongodb">
   <img src="https://img.shields.io/badge/Deployed%20On-AWS%20EC2-orange?style=for-the-badge&logo=amazonaws">
   <img src="https://img.shields.io/badge/CI%2FCD-GitHub%20Actions-blue?style=for-the-badge&logo=githubactions">
   <img src="https://img.shields.io/badge/Process%20Manager-PM2-yellow?style=for-the-badge&logo=pm2">
   <img src="https://img.shields.io/badge/Reverse%20Proxy-Nginx-green?style=for-the-badge&logo=nginx">
+  <img src="https://img.shields.io/badge/Infrastructure-AWS%20CloudFormation-red?style=for-the-badge&logo=amazonaws">
+  <img src="https://img.shields.io/badge/Monitoring-AWS%20CloudWatch-purple?style=for-the-badge&logo=amazoncloudwatch">
+  <img src="https://img.shields.io/badge/Notifications-AWS%20SNS-orange?style=for-the-badge&logo=amazonaws">
 </p>
 
 
@@ -145,7 +146,6 @@ pm2 start server.js --name backend  # Production
 
 # 🌟 AMSA Website  
 
-![Project Banner](https://via.placeholder.com/1200x300?text=AMSA+Website+Project)  
 
 **AMSA** is a full-stack web application designed to manage and showcase AMSA activities, events, and member engagement.  
 It uses a modern Next.js frontend, a Node.js backend, automated CI/CD pipeline, and secure AWS-based deployment.  
@@ -178,4 +178,4 @@ Copy code
 git add README.md
 git commit -m "Update README with modern project overview and deployment details"
 git push origin main
-Check your repo: https://github.com/Ajinkya-0599/frontend-amsa-ajinkya
+Check your repo: https://github.com/Ajinkya-0599/frontend-amsa-ajinkya 
