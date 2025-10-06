@@ -47,7 +47,7 @@ jobs:
       uses: aws-actions/aws-cloudformation-github-deploy@v1
       with:
         name: amsa-stack
-        template: ./amsa-stack.yml
+        template: ./frontend/cloudformation/amsa-stack.yml   # <-- corrected path
         no-fail-on-empty-changeset: true
         capabilities: CAPABILITY_NAMED_IAM
       env:
