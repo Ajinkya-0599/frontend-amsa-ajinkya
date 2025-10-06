@@ -138,7 +138,7 @@ Resources:
     Type: AWS::SNS::Subscription
     Properties:
       Protocol: email
-      Endpoint: "your-email@example.com"  # 🔄 Replace with your email
+      Endpoint: "ajinkya2267@example.com"  # 🔄 Replace with your email 
       TopicArn: !Ref AmsaAlarmTopic
 
   # --- CPU Alarm ---
