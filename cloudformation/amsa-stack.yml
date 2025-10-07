@@ -4,7 +4,7 @@ Description: EC2 instance for Amsa Frontend and Backend with Monitoring
 Parameters:
   KeyName:
     Type: AWS::EC2::KeyPair::KeyName
-    Default: my-key-pair 
+    Default: key-ohio
     Description: Name of an existing EC2 KeyPair for SSH access
   InstanceType:
     Type: String
@@ -39,7 +39,7 @@ Resources:
     Properties:
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      ImageId:  ami-0a716d3f3b16d290c # Ubuntu 22.04 
+      ImageId:  ami-0cfde0ea8edd312d4 # Ubuntu 22.04 
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
       Tags: 
