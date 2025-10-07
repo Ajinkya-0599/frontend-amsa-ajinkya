@@ -141,13 +141,6 @@ Resources:
           CWCFG
           /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
 
-Outputs:
-  PublicIP:
-    Description: Public IP of EC2
-    Value: !GetAtt AmsaEC2Instance.PublicIp
-  PublicDNS:
-    Description: Public DNS of EC2
-    Value: !GetAtt AmsaEC2Instance.PublicDnsName
 
 
     
@@ -303,6 +296,20 @@ Outputs:
   PublicDNS:
     Description: Public DNS of EC2
     Value: !GetAtt AmsaEC2Instance.PublicDnsName
+  AlarmTopic:
+    Description: SNS Topic ARN for monitoring alerts
+    Value: !Ref AmsaAlarmTopic
+
+
+Outputs:
+  PublicIP:
+    Description: Public IP of EC2
+    Value: !GetAtt AmsaEC2Instance.PublicIp
+
+  PublicDNS:
+    Description: Public DNS of EC2
+    Value: !GetAtt AmsaEC2Instance.PublicDnsName
+
   AlarmTopic:
     Description: SNS Topic ARN for monitoring alerts
     Value: !Ref AmsaAlarmTopic
