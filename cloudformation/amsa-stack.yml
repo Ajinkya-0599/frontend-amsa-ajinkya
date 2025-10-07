@@ -33,6 +33,10 @@ Resources:
           FromPort: 3001
           ToPort: 3001
           CidrIp: 0.0.0.0/0
+        - IpProtocol: SSH
+          FromPort: 22
+          ToPort: 22
+          CidrIp: 0.0.0.0/0 
 
   AmsaEC2Instance:
     Type: AWS::EC2::Instance
