@@ -53,7 +53,7 @@ Resources:
           apt install -y git nginx curl unzip
           
           # Install Node.js 20
-          curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+          curl -fsSL https://deb.nodesource.com/setup_20.x | sudo -E bash -
           apt install -y nodejs
           
           # Install global npm packages
@@ -62,7 +62,7 @@ Resources:
           sudo npm install -g serve
 
           # Prepare frontend directory
-          mkdir -p /var/www/amsa-fe
+          mkdir -p /var/www/frontend-amsa-ajinkya
 
           # Configure Nginx
           cat <<EOF > /etc/nginx/sites-available/amsa
@@ -70,7 +70,7 @@ Resources:
               listen 80;
               server_name _;
 
-              root /var/www/amsa-fe;
+              root /var/www/frontend-amsa-ajinkya;
               index index.html;
 
               location / {
