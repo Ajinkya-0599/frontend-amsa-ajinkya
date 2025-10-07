@@ -16,6 +16,7 @@ Parameters:
     Description: EC2 instance type     
 
 Resources:
+  # Security Group
   AmsaSecurityGroup:
     Type: AWS::EC2::SecurityGroup
     Properties:
@@ -33,17 +34,14 @@ Resources:
           FromPort: 3001
           ToPort: 3001
           CidrIp: 0.0.0.0/0
-        - IpProtocol: tcp 
-          FromPort: 22
-          ToPort: 22
-          CidrIp: 0.0.0.0/0 
 
+  # EC2 Instance
   AmsaEC2Instance:
     Type: AWS::EC2::Instance
     Properties:
       InstanceType: !Ref InstanceType
       KeyName: !Ref KeyName
-      ImageId: ami-0cfde0ea8edd312d4
+      ImageId: ami-0cfde0ea8edd312d4 # Ubuntu 22.04
       SecurityGroupIds:
         - !Ref AmsaSecurityGroup
       Tags:
@@ -53,20 +51,17 @@ Resources:
         Fn::Base64: !Sub |
           #!/bin/bash
           set -e
-          export DEBIAN_FRONTEND=noninteractive
 
-          # Update system
+          # --- Update & install dependencies ---
           apt update && apt upgrade -y
-          apt install -y git nginx curl unzip build-essential
+          apt install -y git curl unzip build-essential nginx
 
-          # Node.js 20
+          # --- Install Node.js 20 ---
           curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
           apt install -y nodejs
-
-          # Install global npm packages
           npm install -g pm2 serve
 
-          # Frontend
+          # --- Prepare frontend ---
           mkdir -p /var/www/frontend-amsa-ajinkya
           if [ ! -d /home/ubuntu/frontend-amsa-ajinkya ]; then
             git clone https://github.com/Ajinkya-0599/frontend-amsa-ajinkya.git /home/ubuntu/frontend-amsa-ajinkya
@@ -75,25 +70,23 @@ Resources:
           npm install
           npm run build
           npm run export
-          mkdir -p /var/www/frontend-amsa-ajinkya
-          cp -r out/* /var/www/frontend-amsa-ajinkya || true
+          rm -rf /var/www/frontend-amsa-ajinkya
+          cp -r out/* /var/www/frontend-amsa-ajinkya
 
-          # Backend
+          # --- Prepare backend ---
           if [ ! -d /home/ubuntu/backend-amsa-ajinkya ]; then
             git clone https://github.com/Ajinkya-0599/backend-amsa-ajinkya.git /home/ubuntu/backend-amsa-ajinkya
           fi
           cd /home/ubuntu/backend-amsa-ajinkya
           npm install
-          pm2 start server.js --name amsa-backend --watch || pm2 restart amsa-backend
+          pm2 start server.js --name amsa-backend --watch
           pm2 save
-          pm2 startup systemd -u ubuntu --hp /home/ubuntu
 
-          # Nginx
+          # --- Configure Nginx ---
           cat <<EOF > /etc/nginx/sites-available/amsa
           server {
               listen 80;
               server_name _;
-
               root /var/www/frontend-amsa-ajinkya;
               index index.html;
 
@@ -114,10 +107,50 @@ Resources:
 
           ln -sf /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/amsa
           rm -f /etc/nginx/sites-enabled/default
-          nginx -t && systemctl restart nginx && systemctl enable nginx
+          nginx -t
+          systemctl enable nginx
+          systemctl restart nginx
+
+          # --- Configure CloudWatch Agent ---
+          mkdir -p /opt/aws/amazon-cloudwatch-agent/bin
+          cat <<CWCFG > /opt/aws/amazon-cloudwatch-agent/bin/config.json
+          {
+            "metrics": {
+              "metrics_collected": {
+                "cpu": {
+                  "measurement": ["usage_idle","usage_user","usage_system"],
+                  "metrics_collection_interval": 60
+                },
+                "mem": {
+                  "measurement": ["mem_used_percent"],
+                  "metrics_collection_interval": 60
+                },
+                "disk": {
+                  "measurement": ["used_percent"],
+                  "resources": ["/"],
+                  "metrics_collection_interval": 60
+                },
+                "procstat": {
+                  "measurement": ["pid_count"],
+                  "metrics_collection_interval": 60,
+                  "process_name": "server.js"
+                }
+              }
+            }
+          }
+          CWCFG
+          /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl -a fetch-config -m ec2 -c file:/opt/aws/amazon-cloudwatch-agent/bin/config.json -s
+
+Outputs:
+  PublicIP:
+    Description: Public IP of EC2
+    Value: !GetAtt AmsaEC2Instance.PublicIp
+  PublicDNS:
+    Description: Public DNS of EC2
+    Value: !GetAtt AmsaEC2Instance.PublicDnsName
 
 
-      
+    
   # --- SNS Topic for CloudWatch Alarms ---
   AmsaAlarmTopic:
     Type: AWS::SNS::Topic
