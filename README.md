@@ -14,7 +14,7 @@
 </p>
 
 
-**AMSA** is a full-stack web application designed to manage and showcase AMSA activities, events, and member engagement.  
+**AMSA Website** is a full-stack web application designed to manage and showcase AMSA activities, events, and member engagement.  
 It uses a modern Next.js frontend, a Node.js backend, automated CI/CD pipeline, and secure AWS-based deployment.  
 
 ---
