@@ -35,85 +35,85 @@ Resources:
           CidrIp: 0.0.0.0/0
 
   AmsaEC2Instance:
-    Type: AWS::EC2::Instance
-    Properties:
-      InstanceType: !Ref InstanceType
-      KeyName: !Ref KeyName
-      ImageId:  ami-0cfde0ea8edd312d4 # Ubuntu 22.04 
-      SecurityGroupIds:
-        - !Ref AmsaSecurityGroup 
-      Tags: 
-        - Key: Name
-          Value: "Amsa-EC2-Instance"
-      UserData:
-  Fn::Base64: !Sub |
-    #!/bin/bash
-    set -e
+  Type: AWS::EC2::Instance
+  Properties:
+    InstanceType: !Ref InstanceType
+    KeyName: !Ref KeyName
+    ImageId: ami-0cfde0ea8edd312d4
+    SecurityGroupIds:
+      - !Ref AmsaSecurityGroup
+    Tags:
+      - Key: Name
+        Value: "Amsa-EC2-Instance"
+    UserData:
+      Fn::Base64: !Sub |
+        #!/bin/bash
+        set -e
 
-    # Update system
-    apt update && apt upgrade -y
-    apt install -y git nginx curl unzip
+        # Update system
+        apt update && apt upgrade -y
+        apt install -y git nginx curl unzip
 
-    # Install Node.js 20
-    curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
-    apt install -y nodejs build-essential
+        # Install Node.js 20
+        curl -fsSL https://deb.nodesource.com/setup_20.x | bash -
+        apt install -y nodejs build-essential
 
-    # Install global npm packages
-    npm install -g pm2 serve
+        # Install global npm packages
+        npm install -g pm2 serve
 
-    # Clone frontend and backend
-    if [ ! -d /home/ubuntu/frontend-amsa-ajinkya ]; then
-      git clone https://github.com/Ajinkya-0599/frontend-amsa-ajinkya.git /home/ubuntu/frontend-amsa-ajinkya
-    fi
-    if [ ! -d /home/ubuntu/backend-amsa-ajinkya ]; then
-      git clone https://github.com/Ajinkya-0599/backend-amsa-ajinkya.git /home/ubuntu/backend-amsa-ajinkya
-    fi
+        # Clone frontend and backend
+        if [ ! -d /home/ubuntu/frontend-amsa-ajinkya ]; then
+          git clone https://github.com/Ajinkya-0599/frontend-amsa-ajinkya.git /home/ubuntu/frontend-amsa-ajinkya
+        fi
+        if [ ! -d /home/ubuntu/backend-amsa-ajinkya ]; then
+          git clone https://github.com/Ajinkya-0599/backend-amsa-ajinkya.git /home/ubuntu/backend-amsa-ajinkya
+        fi
 
-    # Build frontend
-    cd /home/ubuntu/frontend-amsa-ajinkya
-    npm install
-    npm run build
-    npm run export
-    rm -rf /var/www/frontend-amsa-ajinkya
-    mkdir -p /var/www/frontend-amsa-ajinkya
-    cp -r out/* /var/www/frontend-amsa-ajinkya
+        # Build frontend
+        cd /home/ubuntu/frontend-amsa-ajinkya
+        npm install
+        npm run build
+        npm run export
+        rm -rf /var/www/frontend-amsa-ajinkya
+        mkdir -p /var/www/frontend-amsa-ajinkya
+        cp -r out/* /var/www/frontend-amsa-ajinkya
 
-    # Start backend
-    cd /home/ubuntu/backend-amsa-ajinkya
-    npm install
-    pm2 start server.js --name amsa-backend --watch
-    pm2 save
+        # Start backend
+        cd /home/ubuntu/backend-amsa-ajinkya
+        npm install
+        pm2 start server.js --name amsa-backend --watch
+        pm2 save
 
-    # Configure Nginx
-    cat <<EOF > /etc/nginx/sites-available/amsa
-    server {
-        listen 80;
-        server_name _;
+        # Configure Nginx
+        cat <<EOF > /etc/nginx/sites-available/amsa
+        server {
+            listen 80;
+            server_name _;
 
-        root /var/www/frontend-amsa-ajinkya;
-        index index.html;
+            root /var/www/frontend-amsa-ajinkya;
+            index index.html;
 
-        location / {
-            try_files \$uri \$uri/ /index.html;
+            location / {
+                try_files \$uri \$uri/ /index.html;
+            }
+
+            location /api {
+                proxy_pass http://localhost:3001;
+                proxy_http_version 1.1;
+                proxy_set_header Upgrade \$http_upgrade;
+                proxy_set_header Connection 'upgrade';
+                proxy_set_header Host \$host;
+                proxy_cache_bypass \$http_upgrade;
+            }
         }
+        EOF
 
-        location /api {
-            proxy_pass http://localhost:3001;
-            proxy_http_version 1.1;
-            proxy_set_header Upgrade \$http_upgrade;
-            proxy_set_header Connection 'upgrade';
-            proxy_set_header Host \$host;
-            proxy_cache_bypass \$http_upgrade;
-        }
-    }
-    EOF
+        ln -sf /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/amsa
+        rm -f /etc/nginx/sites-enabled/default
+        nginx -t && systemctl restart nginx && systemctl enable nginx
 
-    ln -sf /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/amsa
-    rm -f /etc/nginx/sites-enabled/default
-    nginx -t && systemctl restart nginx && systemctl enable nginx
-
-        
-        
+    
+    
   # --- SNS Topic for CloudWatch Alarms ---
   AmsaAlarmTopic:
     Type: AWS::SNS::Topic
