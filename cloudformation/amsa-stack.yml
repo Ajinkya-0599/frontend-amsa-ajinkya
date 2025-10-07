@@ -103,7 +103,7 @@ Resources:
                   proxy_cache_bypass \$http_upgrade;
               }
           }
-          EOF
+          EOF 
 
           ln -sf /etc/nginx/sites-available/amsa /etc/nginx/sites-enabled/amsa
           rm -f /etc/nginx/sites-enabled/default
